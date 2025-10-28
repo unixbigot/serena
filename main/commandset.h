@@ -14,3 +14,4 @@ extern esp_err_t set_commands(const char *name);
 extern const char *command_names[COMMAND_MAX];
 extern commandset_t *cs_active;
 
+extern void commandset_handle_mqtt_data(const char *topic, const char *payload);

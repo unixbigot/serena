@@ -3,7 +3,10 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "nvs_flash.h"
+#include "esp_event.h"
 #include "esp_wifi.h"
+
 
 
 #include "comms.h"
@@ -169,6 +172,24 @@ esp_err_t comms_wifi_connect(char* wifi_ssid, char* wifi_password)
 
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "Connected to Wi-Fi network: %s", wifi_config.sta.ssid);
+
+	wifi_ap_record_t ap_info;
+	esp_err_t err = esp_wifi_sta_get_ap_info(&ap_info);
+	if (err == ESP_ERR_WIFI_CONN) {
+		ESP_LOGE(TAG, "Wi-Fi station interface not initialized");
+	}
+	else if (err == ESP_ERR_WIFI_NOT_CONNECT) {
+		ESP_LOGE(TAG, "Wi-Fi station is not connected");
+	} else {
+		ESP_LOGI(TAG, "--- Access Point Information ---");
+		ESP_LOG_BUFFER_HEX("MAC Address", ap_info.bssid, sizeof(ap_info.bssid));
+		ESP_LOG_BUFFER_CHAR("SSID", ap_info.ssid, sizeof(ap_info.ssid));
+		ESP_LOGI(TAG, "Primary Channel: %d", ap_info.primary);
+		ESP_LOGI(TAG, "RSSI: %d", ap_info.rssi);
+	}
+
+
+
         return ESP_OK;
     } else if (bits & WIFI_FAIL_BIT) {
         ESP_LOGE(TAG, "Failed to connect to Wi-Fi network: %s", wifi_config.sta.ssid);
@@ -205,4 +226,3 @@ esp_err_t comms_wifi_deinit(void)
 
     return ESP_OK;
 }
-

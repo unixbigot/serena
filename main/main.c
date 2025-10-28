@@ -17,6 +17,7 @@
 #include "nvs_flash.h"
 
 #include "comms.h"
+#include "mqtt.h"
 #include "serena_config.h"
 
 #define TAG "serena"
@@ -32,6 +33,8 @@ extern int esp_get_feed_channel(void);
 static esp_afe_sr_iface_t *afe_handle = NULL;
 static volatile int task_flag = 0;
 srmodel_list_t *models = NULL;
+
+bool app_running = true;
 
 void feed_Task(void *arg)
 {
@@ -155,28 +158,9 @@ void app_main()
     // 
     ESP_ERROR_CHECK(comms_wifi_init());
     ESP_ERROR_CHECK(comms_wifi_connect(WIFI_SSID, WIFI_PASSWORD));
+    ESP_ERROR_CHECK(mqtt_connect(BROKER_URI, &commandset_handle_mqtt_data));
 
     
-    wifi_ap_record_t ap_info;
-    ret = esp_wifi_sta_get_ap_info(&ap_info);
-    if (ret == ESP_ERR_WIFI_CONN) {
-        ESP_LOGE(TAG, "Wi-Fi station interface not initialized");
-    }
-    else if (ret == ESP_ERR_WIFI_NOT_CONNECT) {
-        ESP_LOGE(TAG, "Wi-Fi station is not connected");
-    } else {
-        ESP_LOGI(TAG, "--- Access Point Information ---");
-        ESP_LOG_BUFFER_HEX("MAC Address", ap_info.bssid, sizeof(ap_info.bssid));
-        ESP_LOG_BUFFER_CHAR("SSID", ap_info.ssid, sizeof(ap_info.ssid));
-        ESP_LOGI(TAG, "Primary Channel: %d", ap_info.primary);
-        ESP_LOGI(TAG, "RSSI: %d", ap_info.rssi);
-
-        ESP_LOGI(TAG, "Disconnecting in 5 seconds...");
-        vTaskDelay(pdMS_TO_TICKS(5000));
-    }
-
-
-
     ESP_LOGI(TAG, "Load models\n");
     models = esp_srmodel_init("model"); // partition label defined in partitions.csv
     ESP_ERROR_CHECK(esp_board_init(16000, 1, 16));
@@ -202,6 +186,9 @@ void app_main()
     ESP_LOGI(TAG, "Start feed task\n");
     xTaskCreatePinnedToCore(&feed_Task, "feed", 8 * 1024, (void*)afe_data, 5, NULL, 0);
 
+    while (app_running) {
+	sleep(1);
+    }
 
     ESP_LOGI(TAG, "Shutting down\n");
     // // You can call afe_handle->destroy to destroy AFE.

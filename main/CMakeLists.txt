@@ -5,6 +5,7 @@ set(srcs
     main.c
     comms.c
     commandset.c
+    mqtt.c
     )
 
 set(requires
@@ -12,6 +13,7 @@ set(requires
 	esp_wifi
 	nvs_flash
 	spi_flash
+	mqtt
 	)
 
 if(USE_LOLIN)
@@ -26,9 +28,9 @@ set(extra_requires
     )
 endif()    
 
-idf_component_register(INCLUDE_DIRS include
+idf_component_register(INCLUDE_DIRS "."
 		       SRCS ${srcs} ${extra_srcs}
-                       REQUIRES  ${extra_requires}
+                       REQUIRES ${requires} ${extra_requires}
 )
 
 component_compile_options(-w)

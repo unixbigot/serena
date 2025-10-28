@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "freertos/FreeRTOS.h"
 
+#include "esp_log.h"
 #include "esp_wn_iface.h"
 #include "esp_wn_models.h"
 #include "esp_afe_sr_iface.h"
@@ -11,6 +12,7 @@
 
 #include "model_path.h"
 #include "commandset.h"
+#include "mqtt.h"
 
 #define TAG "commandset"
 
@@ -203,6 +205,14 @@ esp_err_t set_commands(const char *name)
     return ESP_OK;
 }
 
+void commandset_handle_mqtt_data(const char *topic, const char *payload) 
+{
+    if (strcmp(topic, "/serena/task/activate")==0) {
+	ESP_LOGI(TAG, "TASK ACTIVATE %s\n", payload);
+	set_commands(payload);
+    }
+}
+
 	    
 esp_err_t handle_command(esp_mn_results_t *mn_result) 
 {
@@ -238,12 +248,15 @@ esp_err_t handle_command(esp_mn_results_t *mn_result)
 	}
 	else if (cs_active == &cs_solder) {
 	    ESP_LOGI(TAG, "SOLDERING ACTION: %s\n", command_name);
+	    mqtt_publish("/serena/phrase/soldering", command_name);
 	}
 	else if (cs_active == &cs_scope) {
 	    ESP_LOGI(TAG, "MICROSCOPE ACTION: %s\n", command_name);
+	    mqtt_publish("/serena/phrase/microscope", command_name);
 	}
 	else if (cs_active == &cs_visor) {
 	    ESP_LOGI(TAG, "VISOR ACTION: %s\n", command_name);
+	    mqtt_publish("/serena/phrase/visor", command_name);
 	}
     }
 

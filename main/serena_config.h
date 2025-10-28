@@ -5,3 +5,5 @@
 #define WIFI_SSID "Accelerando Dev"
 #define WIFI_PASSWORD "sailboat-rabbit-banana"
 
+#define BROKER_URI "mqtt://mqtt.local"
+
