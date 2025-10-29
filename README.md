@@ -108,6 +108,10 @@ server, but you can also run it on any PC, laptop or single-board
 computer.   Node-red has been running my office security system for
 nearly a decade now.
 
+![NodeRed glue flow](img/nodered-microscope.png)
+
+You can create the above flow by using NodeRed's import operation to
+load the file [nodered-microscope.json](nodered-microscope.json).
 
 ### Servo magnifying visor
 
