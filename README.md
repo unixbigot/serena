@@ -127,3 +127,8 @@ Again using [FluidNC](https://fluidnc.com/) I build a rig to position
 my soldering iron and feed solder.   When doing production assembly of
 connectors and PCB headers this saves a lot of time.
 
+Find the FluidNC configuration file and an OpenSCAD program to
+generate the 3D printed motor stage in
+[hardware/solder](hardware/solder)
+
+![Soldering iron stage](hardware/solder/solder-stage.jpeg)
