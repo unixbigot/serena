@@ -1,0 +1,73 @@
+name: "Stabby The Goodlife"
+board: "Betsy"
+verbose_errors: true
+
+stepping:
+  engine: RMT
+  idle_ms: 254
+  dir_delay_us: 2
+  pulse_us: 10
+  disable_delay_us: 0
+
+axes:
+  z:
+    # Motor is 200step/rev.  20 tooth pulley with GT2 belt, so
+    # 40mm/rev => 5 step/mm 
+    steps_per_mm: 5
+
+    #
+    # Want to make a 50mm move in 100ms, so 500mm/s => 3000mm//min 
+    max_rate_mm_per_min: 50000
+    acceleration_mm_per_sec2: 1000
+    homing:
+      cycle: 1
+      mpos_mm: 0
+      positive_direction: false
+      seek_mm_per_min: 2000
+      feed_mm_per_min: 500
+      feed_scaler: 5
+      seek_scaler: 5
+    motor0:
+      #limit_neg_pin: gpio.36:low
+      standard_stepper:
+        step_pin: gpio.23
+        direction_pin: gpio.19:low
+        disable_pin: gpio.5
+
+
+
+
+control:
+  safety_door_pin: NO_PIN
+  reset_pin: NO_PIN
+  feed_hold_pin: NO_PIN
+  cycle_start_pin: NO_PIN
+  macro0_pin: gpio.26:low:pu
+  macro1_pin: gpio.18:low:pu
+  macro2_pin: gpio.17:low:pu
+  #macro3_pin: NO_PIN
+
+macros:
+  startup_line0: #<_move>=40&#<_dwell>=0.25&#<_speed>=10000
+  macro0: G1Z#<_move>F#<_speed>&G4P#<_dwell>&G1Z0
+  macro1: #<_move>=[#<_move> - 1]
+  macro2: #<_move>=[#<_move> + 1]
+  # macro3:
+
+user_outputs:
+  # analog0_pin: gpio.13
+  # analog1_pin: NO_PIN
+  # analog2_pin: NO_PIN
+  # analog3_pin: NO_PIN
+  # analog0_hz: 5000
+  # analog1_hz: 5000
+  # analog2_hz: 5000
+  # analog3_hz: 5000
+  # digital0_pin: gpio.14
+  # digital1_pin: NO_PIN
+  # digital2_pin: NO_PIN
+  # digital3_pin: NO_PIN    
+
+start:
+  must_home: false
+  check_limits: false

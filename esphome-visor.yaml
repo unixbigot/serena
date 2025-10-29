@@ -1,0 +1,144 @@
+esphome:
+  name: visorservo
+  on_boot:
+    then:
+      - number.set:
+          id: visor_angle
+          value: -50
+
+esp32:
+  board: esp32-c3-devkitm-1
+
+logger:
+
+api:
+  password: ""
+
+ota:
+  - platform: esphome
+    password: ""
+
+wifi:
+  ssid: "Your SSID here"
+  password: "your password here"
+
+  ap:
+    ssid: "Visorservo Fallback Hotspot"
+    password: "big secret thing"
+
+captive_portal:
+
+web_server:
+  port: 80
+
+mqtt:
+  broker: mqtt.local
+  username: visor
+  password: !secret mqtt_password
+  birth_message:
+    topic: serena/task/activate
+    payload: visor
+  will_message:
+    topic: serena/task/deactivate
+    payload: visor
+  on_message:
+    - topic: serena/phrase/visor
+    - payload: raise visor
+    - then:
+        - number.set:
+            id: visor_angle
+            value: -50
+    - topic: serena/phrase/visor
+    - payload: lower visor
+    - then:
+        - number.set:
+            id: visor_angle
+            value: 30
+
+i2c:
+  sda: GPIO10
+  scl: GPIO9
+  scan: true
+
+binary_sensor:
+  - platform: gpio
+    id: key_raise
+    name: K4
+    pin:
+      number: GPIO1
+      mode: INPUT_PULLUP
+      inverted: true
+    on_press:
+      then:
+        - number.set:
+            id: visor_angle
+            value: -50
+  - platform: gpio
+    id: key_up
+    name: K3
+    pin:
+      number: GPIO2
+      mode: INPUT_PULLUP
+      inverted: true
+    on_press:
+      then:
+        - number.decrement:
+            id: visor_angle
+  - platform: gpio
+    id: key_dn
+    name: K2
+    pin:
+      number: GPIO3
+      mode: INPUT_PULLUP
+      inverted: true
+    on_press:
+      then:
+        - number.increment:
+            id: visor_angle
+  - platform: gpio
+    id: key_lower
+    name: K1
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLUP
+      inverted: true
+    on_press:
+      then:
+        - number.set:
+            id: visor_angle
+            value: 30
+
+number:
+  - platform: template
+    name: Visor Angle
+    id: visor_angle
+    min_value: -100
+    initial_value: -50
+    max_value: 100
+    step: 5
+    optimistic: true
+    set_action:
+      then:
+        - servo.write:
+            id: visor_servo
+            level: !lambda 'return x / 100.0;'
+
+switch:
+  - platform: gpio
+    name: Visorservo Indicator
+    pin:
+      inverted: true
+      number: GPIO8
+
+output:
+  - platform: ledc
+    pin: GPIO0
+    id: servo_pwm
+    frequency: 50 Hz
+
+servo:
+  - id: visor_servo
+    output: servo_pwm
+    transition_length: 1s
+    auto_detach_time: 2s
+

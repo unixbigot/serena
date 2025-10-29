@@ -16,7 +16,8 @@ on that.
 **Action performance**: Your devices can be anything that speaks
 MQTT - any ESP32 development is a suitable platform.   Your devices
 will connect to the MQTT server and subscribe to relevant topic
-patterns.
+patterns.  If you use the Home Assistant and/or ESPhome platforms, you
+can potentially build no-code action devices.
 
 ### Additional Hardware Required
 
@@ -27,7 +28,7 @@ sounds
 ### Configure, Build and Flash
 
 
-##### once only - set target microconroller variant 
+##### once only - set target microcontroller variant 
 
 ```
 idf.py set-target esp32s3
@@ -91,5 +92,34 @@ which consists of recommending commands for a particular task, plus
 the global commands for changing vocabularies and other universal
 actions.
 
+## Hardware examples
 
+### XY microscope stage
+
+Using the [FluidNC](https://fluidnc.com/) project for Computer Numeric
+Control you can voice control various things  using stepper or servo
+motors.
+
+To glue Serena's MQTT to FluidNC's telnet interface and macro
+programs, I used a [NodeRed](https://nodered.org) flow that listens
+for phrases over MQTT and invokes macros on FluidNC.   Since I already
+use HomeAssistant, I installed NodeRed as a plugin on my HomeAssistant
+server, but you can also run it on any PC, laptop or single-board
+computer.   Node-red has been running my office security system for
+nearly a decade now.
+
+
+### Servo magnifying visor
+
+Using [ESPhome](https://esphome.io) I modified a magnifying visor to
+have a servo motor that raises and lowers the lense.  See the file
+[esphome-visorservo.yaml](esphome-visorservo.yaml) which is a
+configuration file for ESPhome that allows the visor to be controlled
+by Serena (also on-board buttons if you prefer).
+
+### Auto-Solder station
+
+Again using [FluidNC](https://fluidnc.com/) I build a rig to position
+my soldering iron and feed solder.   When doing production assembly of
+connectors and PCB headers this saves a lot of time.
 
